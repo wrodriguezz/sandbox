@@ -1,4 +1,5 @@
-"domains": [
+{
+ "domains": [
     {
       "name": "PI3K_p85B",
       "coord": "32-107"
