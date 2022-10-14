@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css">
+
+    <style>
+        *, *::before, *::after {
+      box-sizing: border-box;
+      font-size: 16px;
+    }
+    html, body, .container, .row {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+    }
+    .container {
+      max-width: 100%;
+    }
+    button {
+      font-size: 16px;
+    }
+
+    .half {
+      position: fixed;
+      margin: 0;
+      width: 50% !important;
+      height: 100%;
+    }
+    .bg {
+      background: url('REPLACE ME') center center;
+      background-size: cover;
+    }
+    .form {
+      left: 50%;
+      overflow: auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    h1, form {
+      width: 100%;
+    }
+    h1 {
+      padding-top: 16px;
+      text-align: center;
+    }
+    form {
+      margin-right: auto;
+      margin-left: auto;
+      max-width: 400px;
+    }
+    .input-group {
+      margin-bottom: 30px;
+    }
+    .radio-group label {
+      display: inline-block;
+    }
+    textarea {
+      min-height: 100px;
+    }
+
+    @media screen and (max-width: 1024px) {
+      .half {
+        position: static;
+        width: 100% !important;
+        height: auto;
+      }
+      .bg {
+        height: 30vh;
+      }
+      form {
+        padding-right: 12px;
+        padding-left: 12px;
+      }
+    }
+
+    </style>
+    <script>
+    
+    var sectoresObject = {
+    "Abra Honda" : ["Sect. Vargas", "Camn. Santa Isabel", "Sect. La Pica"],
+    "Camuy Arriba" : ["Sect. Amador", "Sect.Piquinas", "Sect. Sabana"],
+    "Cibao" : ["Sect. Ocasio", "Sect. Cibao Lugo", "Sect. Cuchillas"]
+    }
+  
+    window.onload = function (){
+    var barrioSel = document.getElementById("camuy_barrios");
+    var sectorSel = document.getElementById("camuy_sectores");
+    var sectorValue = sectorSel.value;
+    for (var x in sectoresObject){
+      barrioSel.options[barrioSel.options.length] = new Option(x,x);
+    }
+  
+    barrioSel.onchange = function(){
+      sectorSel.length = 1;
+      if (this.selectedIndex < 1) return;
+      var ft = sectoresObject[this.value];
+      for (var y in sectoresObject[this.value]){
+      sectorSel.options[sectorSel.options.length] = new Option(ft[y],ft[y]);
+      }
+    }
+    //window.alert();
+    barrioSel.onchange();
+  }
+  
+
+    </script>
+</head>
+<body>
+    <div class="container">
+        <main class="row">
+            <!-- form -->
+            <h1> This is a test </h1>
+            <form>
+            <!-- Barrio -->
+            <div class="input-group">
+                <label for="camuy_barrios">Barrio</label>
+                <select class="u-full-width" id="camuy_barrios">
+                    <option value="" selected="selected">Select Barrio</option>
+                </select>
+            </div>
+
+            <!-- Sector-->
+            <div class="input-group">
+                <label for="camuy_sectores">Sector</label>
+                <select class="u-full-width" id="camuy_sectores">
+                    <option value="" selected="selected">Select Sector</option>
+                </select>
+            </div>
+
+            <button type="button" id="submit" class="button-primary u-full-width">Confirm</button>
+
+            </form>
+        </main>
+    
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script>
+        $(function(){
+            $('#submit').on('click', function() {
+                // Barrio
+                var vBarrio = $('#camuy_barrios').val() || 'no set';
+
+                // Sectores
+                var vSector = $('#camuy_sectores').val() || 'no set';
+                
+                // Post
+                var data = {
+                'entry.120055467' : vBarrio,
+                'entry.238787964' : vSector
+                };
+                $.ajax({
+                    type: 'POST',
+                    url: 'https://docs.google.com/forms/d/e/1FAIpQLSfU_22xDcb4_yuJnsWsUkngMdOQxBwv4koItkyQy2JyD3vV8A/formResponse',
+                    data: data,
+                    contentType: 'application/json',
+                    dataType: 'jsonp',
+                    complete: function() {
+                        alert('send success');
+                    }
+                });
+            });
+        });
+    </script>
+    </body>
+    </html>
