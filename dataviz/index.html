@@ -1,0 +1,149 @@
+
+<!doctype html>
+<html lang="en">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://www.gstatic.com/charts/loader.js"></script>
+
+<div id="plot_barrios" style="width: 100%; height: 500px;"></div>
+<div id="table_sectores" style="width: 100%; height: 500px; text-align: center;"></div>
+
+<script>
+  google.charts.load('current', {
+    'packages': ['corechart', 'bar','table']
+  });
+  google.charts.setOnLoadCallback(initChart);
+
+  function initChart() {
+    URL = "https://docs.google.com/spreadsheets/d/1ei_FxRWHzTWcNWmmKFf1LIByW71zYvIDImCon5hevyI/edit?usp=sharing";
+    var query = new google.visualization.Query(URL);
+    query.setQuery('select B,C');
+    query.send(function(response) {
+      handleQueryResponse(response);
+    });
+  }
+
+  
+  function handleQueryResponse(response) {
+
+    var data = response.getDataTable();
+    var dataGroup = google.visualization.data.group(
+      data,
+
+      // group by column
+      [{
+        column: 0,
+        label: 'Barrio',
+        type: 'number'
+      }],
+
+      // agg cols
+      [{
+        aggregation: google.visualization.data.count,
+        column: 1,
+        label: 'Counts',
+        type: 'number'
+      }]
+    );
+
+    // Donutplot Barrios
+    var viewColumns = [0];
+    var aggColumns = [];
+
+    dataGroup.getDistinctValues(0).forEach(function (barrio,index) {
+      viewColumns.push({
+      calc: function (dt, row) {
+        if (dt.getValue(row, 1) === barrio) {
+          return dt.getValue(row, 2);
+        }
+        return null;
+      },
+      label: barrio,
+      type: 'number'
+    });
+
+    // Add aggregation column
+    aggColumns.push({
+      aggregation: google.visualization.data.sum,
+      column: index + 1,
+      label: barrio,
+      type: 'number'
+    });
+  
+  });
+
+  // Add options
+  var options = {
+    title: "Barrios de Camuy sin Servicio Electrico",
+    pieHole: 0.4
+  };
+
+  // Plot Donutchart
+  var chart = new google.visualization.PieChart(document.getElementById('plot_barrios'));
+  chart.draw(dataGroup, options);
+  
+
+
+  var data = response.getDataTable();
+  var sectoresGroup = google.visualization.data.group(
+      data,
+
+      // group by column
+      [{
+        column: 1,
+        label: 'Sectores',
+        type: 'number'
+      }],
+
+      // agg cols
+      [{
+        aggregation: google.visualization.data.count,
+        column: 1,
+        label: 'Reportes',
+        type: 'number'
+      }]
+    );
+  
+    // reusing vars
+  var viewColumns = [0];
+  var aggColumns = [];
+
+  sectoresGroup.getDistinctValues(1).forEach(function (sector,index) {
+    viewColumns.push({
+      calc: function (dt, row) {
+        if (dt.getValue(row, 1) === sector) {
+          return dt.getValue(row, 2);
+        }
+        return null;
+      },
+      label: sector,
+      type: 'number'
+    });
+    
+    // Add aggregation column
+    aggColumns.push({
+       aggregation: google.visualization.data.sum,
+       column: index + 1,
+       label: sector,
+       type: 'number'
+      });
+    });
+
+    // Add options
+  var options = {
+    title: "Barrios de Camuy sin Servicio Electrico"
+  };
+
+  // Sort reports
+  sectoresGroup.sort({
+    column: 1,
+    desc: true
+  })
+
+  // Add table
+  var table = new google.visualization.Table(document.getElementById('table_sectores'));
+  table.draw(sectoresGroup,options);
+}
+
+ 
+</script>
+</html>
