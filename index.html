@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css">
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      font-size: 16px;
+    }
+
+    html,
+    body,
+    .container,
+    .row {
+      width: auto;
+      height: auto;
+    }
+
+    .container {
+      max-width: 100%;
+    }
+
+    button {
+      font-size: 16px;
+    }
+
+    .half {
+      position: fixed;
+      margin: 0;
+      width: 100% !important;
+      height: 100% ;
+      opacity: 0.05;
+    }
+
+    .bg {
+      background: url('https://raw.githubusercontent.com/wrodriguezz/quepaso/main/img/sinLuz.png') center center;
+      background-size: contain;
+      background-repeat: no-repeat;
+    }
+
+    .form {
+      left: 50%;
+      overflow: auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    h2,
+    form {
+      width: auto;
+    }
+
+    h2 {
+      padding-top: 16px;
+      text-align: center;
+      margin-top: 0;
+    }
+
+    form {
+      margin-right: auto;
+      margin-left: auto;
+      margin-top: 100px;
+      max-width: 400px;
+    }
+
+    .input-group {
+      margin-bottom: 30px;
+    }
+
+    .radio-group label {
+      display: inline-block;
+    }
+
+    @media screen and (max-width: 1024px) {
+      .half {
+        position: relative;
+        width: 50% !important;
+        height: auto;
+      }
+
+      .bg {
+        height: 30vh;
+      }
+
+      form {
+        padding-right: 12px;
+        padding-left: 12px;
+      }
+    }
+  </style>
+  <script>
+    // List de Barrios y Sectores
+    var townMetadata = {
+      "Abra Honda": ["Sect. Vargas*", "Camn. Santa Isabel*", "Sect. La Pica", "Camn. Estrella", "Sect. El Pino", "Sect. Capilla", "Sect. Aceitunal", "Sect. Matojillo", "Sect. Canta Gallo", "Sect. Foro Serrano*", "Sect. Carbones", "Camn. Crespo*", "Sect. La Brisa", "Sect. La Herradura", "Sect. Teodoro Ruiz", "Sect. Pozos", "Sect. Monroig", "Sect. El Saco"],
+      "Camuy Arriba": ["Sect. Amador", "Sect.Piquiñas**", "Sect. Sabana", "Sect. Palomar*", "Sect. Polvorín*", "Parc. Camuy Arriba", "Sect. Comercial Díaz", "Sect. El Judío", "Urb. Jardines de América", "Sect. Calvario*", "Urb. Brisas de la Sabana", "Sect. Padín", "Sect. Parcelas", "Sect. Hacienda, La Sabana", "Sect. Camuy Arriba", "Sect. Sal sipuedes", "Urb. Brisas del Valle"],
+      "Cibao": ["Sect. Ocasio", "Sect. Cibao Lugo", "Sect. Cuchillas", "Sect. Las 10 Cuerdas", "Sect. Magueyes", "Sect. EL Duque", "Sect. El Pitirre", "Sect. Soller", "Parc. Cibao", "Sect. Román**", "Sect. Parcelas"],
+      "Ciénagas": ["Sect. Palomar*", "Sect. Martínez*", "Camn. Santa Isabel*", "Sect. Hoyo Brujo", "Calle 4 Tramo", "Sect. Foro Serrano*", "Sect. Los Ríos", "Sect. Morales", "Sect. El Resbalón", "Sect. Carmín", "Camn. Cheo Soto", "Urb. Paseos del Sol", "Calle Palmas del Sol", "Sect. Jayuya", "Sect. Cuatro Calle", "Sect. Perello", "Urb. Alturas del Valle"],
+      "Membrillo": ["Urb. Estancias de Membrillo", "Sect. Membrillo Bajura", "Camn. Las Flores", "Urb. y Ext. Vista Verde", "Sect. Rabo del Buey", "Sect. Monte Iguina*", "Urb. Las Flores", "Urb. Jardines de Camuy", "Calle Cristo Viene", "Urb. Monte de Oro", "Urb. Los Peñones", "Calle los Riollanos", "Sect. La Ceiba Maracayo-2", "Urb. Alturas de Membrillo", "Calle La Ceiba", "Urb. Paseo Las Flores", "Reparto Lugo", "Reparto San Miguel", "Sect. Linares", "Sect. Los Méndez", "Urb. Alturas de Camuy", "Sect. Palmarito*", "Urb. Palmas del Mar", "Urb. Villas de Monte Cielo", "Urb. Colinas del Mar", "Sect. Los Hernández (Las 4 cuerdas)", "Urb. Paseo Las Flores", "Hog. Colinas Verdes"],
+      "Piedra Gorda": ["Sect. Ojo Del Agua", "Sect. Santa Bárbara", "Sect. Calvario*", "Sect. Mandeyes", "Sect. Palo Seco", "Parc. Piedra Gorda", "Sect. Plazuela", "Urb. Estancias del Sol", "Urb. Estancias Palmas del Sol"],
+      "Pueblo": ["Urb. Linda Vista", "Urb. Pedro N. Colberg", "Urb. Caban", "Maracayo", "Urb. Brisas de Camuy", "Urb. San Jose", "Urb. Alta Monte", "Urb. Alturas del Maestro", "Urb. El Maestro", "Vista Los Penones", "Camino Amador", "Calle Correo", "Calle Iguina", "Calle Perello", "Calle Luis Munoz Rivera", "Avenida Ferrocarril", "Urb. Villas Realejo", "Urb. Monte Verde", "Calle Esperanzal", "Urb. Villa Florencia", "Hog. Centro Manuel Acevedo Rosario", "Sect. Amadeo Santiago", "Sect. La Peña"],
+      "Puente": ["Sect. Alcantarilla", "Sect. La Pica", "Parcelas Zarza", "Urb. Los Rodríguez", "Sect. Peña Militar", "Ave. Rotario", "Com. Villa Del Carmen", "Urb. y Ext.Del Carmen", "Urb. Haciendas De Camuy", "Sect. Aljibe Ramos", "Camn. al Río", "Calle Ana María", "Sect. Los Vega*", "Reparto Méndez", "Urb. Paseos de Camuy", "Ave. Ino Román", "Calle Isabel Jiménez", "Calle Peter Alfond", "Urb. Veredas de Camuy", "Calle Esperanzal", "Sect. Zarza", "Rpto. De Jesús", "Sect. La Peña", "Brusi", "Sect. La Ceiba Maracayo-1", "Carr. Almacén de Azúcar, Res. Bethel", "Res. San Enrique I y II", "Ave. Baltazar Jiménez Méndez", "Urb. Villa Florencia", "Ave. Pascual Rosa", "Sect. Lolo Forti", "Urb. Bello Monte", "Sect. Vista al Mar", "Sect. Vista Los Peñones", "Sect. Morales", "Calle José Rosa Cordero", "Calle Genaro Soto", "Sect. Puente Peña", "Calle Los Rosa"],
+      "Puertos": ["Camn. Vereda de Quebrada", "Sect. Los Romanes", "Sect. Puertos Arriba", "Sect. Puertos Abajo", "Sect. Lugo", "Sect. Los Méndez", "Sect. Rincón", "Camn. Eduardo “Tato” González", "Sect. Los Alamedas", "Hog. Emmanuel Aging Center"],
+      "Quabrada": ["Sect. Cayey", "Sect. Echegaray", "Sect. Palmer", "Sect. Sorondo", "Sect. Figueroa", "Sect. Villanueva", "Sect. González", "Parc. Quebrada (Viejas y Nuevas)", "Sect. Pellejas", "Sect. Acabá", "Sect. Bosque", "Sect. El Expreso", "Sect. La Campana", "Sect. Arce", "Sect. El 19", "Sect. Ríos", "Sect. La Victoria", "Sect. Rivera", "Sect. La Silveria", "Sect. Los Méndez", "Sect. Manolo Pérez", "Sect. Florenciani", "Sect. Legarreta", "Sect. Los Vargas", "Sect. Medero", "Sect. Quiles", "Sect. Los González", "Sect. Román, Sect. El Pare", "Sect. Santos Torres**"],
+      "Santiago": ["Sect. Vega", "Sect. Medianía", "Sect. Péndula"],
+      "Yeguada": ["Sect. Bajura", "Camn. Arias", "Sect. Ciento Cuatro (104)", "Hacienda Rivera", "Reparto Húcares", "Sect. Arias", "Sect. Yeguada", "Sect. Monte Iguina*", "Sect. Pepe Nieves", "Sect. Cordero", "Sect. Juan López", "Sect. La Cruz", "Sect. Palmarito*", "Urb. Quintas de Camuy", "Repto. Cruz Jiménez", "Calle Pinar del Mar", "Sect. Cajigas", "Sect. Polvorín*", "Sect. Haciendas del Norte", "Urb. Casa Marbella"],
+      "Zanja": ["Com. Pueblo Nuevo", "Sect. Alianza", "Parc. Espiet", "Sect. Zanja Plás", "Sect. Vargas*", "Camn. Crespo*", "Parc. Nuevas", "Sect. Los Ramos", "Sect. Tinito Delgado", "Sect. Vieques", "Rpto. Bello", "Sect. Los Vega*", "Sect. Los Siete", "Sect. Solares Quiñones", "Sect. Martínez*", "Rpto. Monserrate* (Solares Vidot)", "Sect. Los Siete", "Sect. Plás", "Sect. Morell", "Estancias de Vieques", "Sect. Pipo Crespo", "Sect. Morales"]
+    };
+    
+    // Parse options for dropdown menu
+    window.onload = function () {
+      var barrioSel = document.getElementById("camuy_barrios");
+      var sectorSel = document.getElementById("camuy_sectores");
+      var sectorValue = sectorSel.value;
+      for (var x in townMetadata) {
+        barrioSel.options[barrioSel.options.length] = new Option(x, x);
+      }
+
+      barrioSel.onchange = function () {
+        sectorSel.length = 1;
+        if (this.selectedIndex < 1) return;
+        var ft = townMetadata[this.value];
+        for (var y in townMetadata[this.value]) {
+          sectorSel.options[sectorSel.options.length] = new Option(ft[y], ft[y]);
+        }
+      }
+
+      barrioSel.onchange();
+    }
+  </script>
+</head>
+
+<body>
+  <div class="container">
+    <main class="row">
+      <!-- bg -->
+      <section class="half bg"></section>
+      <!-- form -->
+      <h2> ¿Sin servicio eléctrico en Camuy? ¡Repórtalo! </h1>
+        <form>
+          <!-- Barrio -->
+          <div class="input-group">
+            <label for="camuy_barrios">Barrio</label>
+            <select class="u-full-width" id="camuy_barrios" required>
+              <option value="">-- select --</option>
+            </select>
+          </div>
+
+          <!-- Sector-->
+          <div class="input-group">
+            <label for="camuy_sectores">Sector</label>
+            <select class="u-full-width" id="camuy_sectores" required>
+              <option value="">-- select --</option>
+            </select>
+          </div>
+
+          <button type="button" id="submit" onclick="openWindow()" class="button-primary u-full-width">Confirm</button>
+
+        </form>
+    </main>
+
+  </div>
+  <script>
+    function alertStatus() {
+      $('#submit').attr('disabled', 'disabled');
+      setTimeout(enable, 1000);
+      $('#doneStatus').hide();
+      $('#loadingStatus').show();
+    }
+
+    function openWindow() {
+      var OR = document.getElementById("camuy_barrios").value;
+      var SZ = document.getElementById("camuy_sectores").value;
+      if (OR == '' || SZ == '') {
+        alert('Por favor seleccione un barrio y sector'); return false;
+      } else {
+        function enable() {
+          $('#submit').removeAttr('disabled');
+        }
+        // Barrio
+        var vBarrio = $('#camuy_barrios').val() || 'No Provisto';
+        // Sector
+        var vSector = $('#camuy_sectores').val() || 'No Provisto';
+        // Post
+        var data = {
+          'entry.120055467': vBarrio,
+          'entry.238787964': vSector
+        };
+        $.ajax({
+          type: 'POST',
+          url: 'https://docs.google.com/forms/d/e/1FAIpQLSfU_22xDcb4_yuJnsWsUkngMdOQxBwv4koItkyQy2JyD3vV8A/formResponse',
+          data: data,
+          contentType: 'application/json',
+          dataType: 'jsonp',
+          complete: function () {
+            window.alert('Gracias, su respuesta ha sido registrada');
+            window.location.href = "reports.html";
+          }
+        });
+      }
+    }
+  </script>
+</body>
+
+</html>
